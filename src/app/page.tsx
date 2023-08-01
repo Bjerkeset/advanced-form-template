@@ -39,6 +39,7 @@ import {cn} from "@/lib/utils";
 import {ArrowRight} from "lucide-react";
 import {useToast} from "@/components/ui/use-toast";
 import {motion} from "framer-motion";
+import {Toaster} from "@/components/ui/toaster";
 
 type Input = z.infer<typeof RegisterSchema>;
 
@@ -74,6 +75,7 @@ export default function Home() {
 
   return (
     <div>
+      <Toaster />
       <ThemeToggle className="absolute top-6 right-6" />
       {/* // my style div */}
       <div className="flex justify-center">

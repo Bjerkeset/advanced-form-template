@@ -1,4 +1,4 @@
-"use client";
+//File: src/app/layout.tsx
 import "src/styles/globals.css";
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
@@ -19,7 +19,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
           {children}
-          <Toaster />
         </ThemeProvider>
       </body>
     </html>
