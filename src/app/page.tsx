@@ -1,113 +1,291 @@
-import Image from 'next/image'
+"use client";
+
+import {ThemeToggle} from "@/components/ThemeToggle";
+import {Button} from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import Image from "next/image";
+import {useForm} from "react-hook-form";
+import {RegisterSchema} from "@/validators/auth";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import React from "react";
+import {cn} from "@/lib/utils";
+import {ArrowRight} from "lucide-react";
+import {useToast} from "@/components/ui/use-toast";
+import {motion} from "framer-motion";
+
+type Input = z.infer<typeof RegisterSchema>;
 
 export default function Home() {
+  const {toast} = useToast();
+  const [formStep, setFormStep] = React.useState(0);
+
+  const form = useForm<Input>({
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      email: "",
+      name: "",
+      password: "",
+      comfirmPassword: "",
+      studentId: "",
+      year: "",
+    },
+  });
+
+  console.log(form.watch());
+
+  function onSubmit(data: Input) {
+    if (data.comfirmPassword !== data.password) {
+      toast({
+        title: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+    alert(JSON.stringify(data, null, 4));
+    console.log(data);
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div>
+      <ThemeToggle className="absolute top-6 right-6" />
+      {/* // my style div */}
+      <div className="flex justify-center">
+        <Card className="w-[318px] mt-28 md:w-[500px] max-w-screen-md">
+          <CardHeader>
+            <CardTitle>Form Title</CardTitle>
+            <CardDescription>This is the card description.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-3 relative overflow-x-hidden"
+              >
+                <motion.div
+                  className={cn("space-y-3", {
+                    // hidden: formStep === 1,
+                  })}
+                  // formStep == 0 => translateX == 0
+                  // formStep == 1 => translateX == -100%
+                  animate={{
+                    translateX: `-${formStep * 100}%`,
+                  }}
+                  transition={{
+                    ease: "easeInOut",
+                  }}
+                >
+                  {/* Name */}
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your name" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          This is your public display name.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* Email */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* Student Id */}
+                  <FormField
+                    control={form.control}
+                    name="studentId"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Studen Id</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your student id"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* Year of Study */}
+                  <FormField
+                    control={form.control}
+                    name="year"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Year of Study</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a verified email to display" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {[10, 11, 12].map((year) => {
+                              return (
+                                <SelectItem value={year.toString()} key={year}>
+                                  Year {year}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
+                <motion.div
+                  className={cn("space-y-3 absolute right-0 left-0 top-0", {
+                    // hidden: formStep === 0,
+                  })}
+                  animate={{
+                    //formStep == 0 => translateX == 100%
+                    //formStep == 1 => translateX == 0
+                    translateX: `${100 - formStep * 100}%`,
+                  }}
+                  // defult style prevents the animation from running on page load.
+                  style={{
+                    translateX: `${100 - formStep * 100}%`,
+                  }}
+                  transition={{
+                    ease: "easeInOut",
+                  }}
+                >
+                  {/* Password */}
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your password"
+                            {...field}
+                            type="password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* Comfirm Password */}
+                  <FormField
+                    control={form.control}
+                    name="comfirmPassword"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Comfirm Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Comfirm your password"
+                            {...field}
+                            type="password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    className={cn({
+                      hidden: formStep === 0,
+                    })}
+                  >
+                    Submit
+                  </Button>
+                  <Button
+                    type="button"
+                    className={cn({
+                      hidden: formStep === 1,
+                    })}
+                    variant={"outline"}
+                    onClick={() => {
+                      // validate form before going to next step
+                      form.trigger(["email", "name", "year", "studentId"]);
+                      const emailState = form.getFieldState("email");
+                      const nameState = form.getFieldState("name");
+                      const yearState = form.getFieldState("year");
+                      const idState = form.getFieldState("studentId");
+
+                      if (!emailState.isDirty || emailState.invalid) return;
+                      if (!nameState.isDirty || nameState.invalid) return;
+                      if (!yearState.isDirty || yearState.invalid) return;
+                      if (!idState.isDirty || idState.invalid) return;
+                      setFormStep(1);
+                    }}
+                  >
+                    Next Step
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setFormStep(0);
+                    }}
+                    className={cn({
+                      hidden: formStep === 0,
+                    })}
+                    variant={"outline"}
+                  >
+                    Go Back
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </div>
+  );
 }
